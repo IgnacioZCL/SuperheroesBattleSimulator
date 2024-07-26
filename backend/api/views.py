@@ -14,6 +14,7 @@ class BattleSimulator(View):
         logger.info('Generating teams')
         a_team, b_team = generate_teams()
         logger.info('Teams generated')
+        winner = ''
 
         while a_team['characters'] and b_team['characters']:
             a_character = a_team['characters'][0]
@@ -21,11 +22,9 @@ class BattleSimulator(View):
             logger.info(
                 '------------------------------ FIGHT ----------------------------------')
             logger.info(
-                f'Character: {a_character["name"]}, HP: {a_character["health_points"]}')
+                f'Character: {a_character["name"]}, Initial HP: {a_character["health_points"]}')
             logger.info(
-                f'Character: {b_character["name"]}, HP: {b_character["health_points"]}')
-            logger.info(
-                '-----------------------------------------------------------------------')
+                f'Character: {b_character["name"]}, Initial HP: {b_character["health_points"]}')
 
             a_attack = random_attack(a_character['intelligence'],
                                      a_character['speed'],
@@ -44,14 +43,28 @@ class BattleSimulator(View):
                                      b_character['fb']
                                      )
 
-            a_character['health_points'] -= b_attack
-            b_character['health_points'] -= a_attack
+            a_character['health_points'] -= b_attack['value']
+            b_character['health_points'] -= a_attack['value']
+
+            logger.info(
+                f'Character: {a_character["name"]}, Type Attack: {a_attack["type"]}, Attack Value: {a_attack["value"]}')
+            logger.info(
+                f'Character: {b_character["name"]}, Type Attack: {b_attack["type"]}, Attack Value: {b_attack["value"]}')
+
+            logger.info(
+                '-----------------------------------------------------------------------')
 
             if a_character['health_points'] <= 0:
                 a_team['characters'].pop(0)
+                if not a_team['characters']:
+                    winner = 'b_team'
             if b_character['health_points'] <= 0:
                 b_team['characters'].pop(0)
+                if not b_team['characters']:
+                    winner = 'a_team'
+
         return JsonResponse({
             'a_team': a_team,
-            'b_team': b_team
+            'b_team': b_team,
+            'winner': winner
         })

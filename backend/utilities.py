@@ -35,11 +35,20 @@ def random_attack(intelligence, speed, combat, strength, durability, power, fb):
     attack_type = randint(1, 3)
 
     if attack_type == 1:
-        return mental_attack(intelligence, speed, combat, fb)
+        return {
+            'type': 'Mental Attack',
+            'value': round(mental_attack(intelligence, speed, combat, fb))
+        }
     if attack_type == 2:
-        return strong_attack(strength, power, combat, fb)
+        return {
+            'type': 'Strong Attack',
+            'value': round(strong_attack(strength, power, combat, fb))
+        }
     if attack_type == 3:
-        return fast_attack(speed, durability, strength, fb)
+        return {
+            'type': 'Fast Attack',
+            'value': round(fast_attack(speed, durability, strength, fb))
+        }
 
 
 def stats_configuration(team):
