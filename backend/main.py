@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from utilities.utilities import generate_teams, random_attack
 from fastapi.middleware.cors import CORSMiddleware
 import logging
-import json
+import requests
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -36,12 +36,27 @@ async def generate_teams_endpoint():
 async def simulate_battle_endpoint(request: Request):
     body = await request.json()
     battle = Battle(body['a_team'], body['b_team'])
-    a_team, b_team, winner = battle.run_battle()
+    a_team, b_team, winner, battle_logs = battle.run_battle()
     return {
         'a_team': a_team,
         'b_team': b_team,
-        'winner': winner
+        'winner': winner,
+        'battle_logs': battle_logs
     }
+
+
+@app.post("/send_battle/")
+async def send_battle_email(request: Request):
+    body = await request.json()
+
+    response = requests.post(
+        "https://api.mailgun.net/v3/sandboxae28c4bcd41b4411993ab4b53e2caa61.mailgun.org/messages",
+        auth=("api", "d1bd7548c4f61829bb3f1dea4e3b07e0-0f1db83d-aa94cad1"),
+        data={"from": "Excited User <ignacio.f.zuniga@gmail.com>",
+                      "to": [body['receiver']],
+                      "subject": "Resumen de la pelea de personajes",
+              "text": body['battle_summary']})
+    return {'message': 'success'}
 
 
 class Battle():
@@ -50,16 +65,19 @@ class Battle():
         self.b_team = b_team
 
     def run_battle(self):
+        logger.info('Simulating battle')
         winner = ''
+        battle_logs = []
         while self.a_team['characters'] and self.b_team['characters']:
             a_character = self.a_team['characters'][0]
             b_character = self.b_team['characters'][0]
-            logger.info(
-                '------------------------------ FIGHT ----------------------------------')
-            logger.info(
-                f'Character: {a_character["name"]}, Initial HP: {a_character["health_points"]}')
-            logger.info(
-                f'Character: {b_character["name"]}, Initial HP: {b_character["health_points"]}')
+
+            battle_log = {
+                'a_character_name': a_character['name'],
+                'a_character_hp': a_character['health_points'],
+                'b_character_name': b_character['name'],
+                'b_character_hp':  b_character['health_points']
+            }
 
             a_attack = random_attack(a_character['intelligence'],
                                      a_character['speed'],
@@ -81,13 +99,13 @@ class Battle():
             a_character['health_points'] -= b_attack['value']
             b_character['health_points'] -= a_attack['value']
 
-            logger.info(
-                f'Character: {a_character["name"]}, Type Attack: {a_attack["type"]}, Attack Value: {a_attack["value"]}')
-            logger.info(
-                f'Character: {b_character["name"]}, Type Attack: {b_attack["type"]}, Attack Value: {b_attack["value"]}')
-
-            logger.info(
-                '-----------------------------------------------------------------------')
+            battle_log.update({
+                'a_attack_type': a_attack["type"],
+                'a_attack_points': a_attack["value"],
+                'b_attack_type': b_attack["type"],
+                'b_attack_points': b_attack["value"],
+            })
+            battle_logs.append(battle_log)
 
             if a_character['health_points'] <= 0:
                 self.a_team['characters'].pop(0)
@@ -98,4 +116,4 @@ class Battle():
                 if not self.b_team['characters']:
                     winner = 'a_team'
 
-        return self.a_team, self.b_team, winner
+        return self.a_team, self.b_team, winner, battle_logs
