@@ -14,10 +14,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from api.views import BattleSimulator
+from django.urls import path, include
+from api.views import BattleSimulatorTest, GenerateTeams, SimulateBattle, csrf
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('battle_simulator/', BattleSimulator.as_view(), name="battle_simulator")
+    path('api-auth/', include('rest_framework.urls')),
+    path('simulate_battle/', SimulateBattle.as_view(), name="simulate_battle"),
+    path('battle_simulator_test/', BattleSimulatorTest.as_view(),
+         name="battle_simulator_test"),
+    path('generate_teams/', GenerateTeams.as_view(), name="generate_teams"),
+    path('get_csrf/', csrf, name="get_csrf")
 ]

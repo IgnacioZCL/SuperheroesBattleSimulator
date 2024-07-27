@@ -1,5 +1,5 @@
 from random import randint, sample
-from superheroes_api import SuperheroesAPI
+from .superheroes_api import SuperheroesAPI
 
 
 def get_hp(strength, durability, power, stamina):
@@ -79,11 +79,12 @@ def stats_configuration(team):
 def generate_teams():
     shapi = SuperheroesAPI()
     teams = []
+    characters = shapi.get_characters_data(sample(range(1, 732), 10))
 
-    for character_id in sample(range(1, 732), 10):
-        character_data = shapi.get_character_data(character_id)
+    for character_data in characters:
+        # character_data = shapi.get_character_data(character_id)
         character = {
-            'id': character_id,
+            'id': character_data['id'],
             'name': character_data['name'],
             'intelligence': int(character_data['powerstats']['intelligence']) if character_data['powerstats']['intelligence'] != 'null' else 0,
             'strength': int(character_data['powerstats']['strength']) if character_data['powerstats']['strength'] != 'null' else 0,

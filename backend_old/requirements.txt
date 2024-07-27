@@ -1,0 +1,16 @@
+asgiref==3.4.1
+certifi==2024.7.4
+charset-normalizer==2.0.12
+Django==3.2.25
+django-cors-headers==3.10.1
+gevent==22.10.2
+greenlet==2.0.2
+grequests==0.7.0
+idna==3.7
+pytz==2024.1
+requests==2.27.1
+sqlparse==0.4.4
+typing-extensions==4.1.1
+urllib3==1.26.19
+zope.event==4.6
+zope.interface==5.5.2

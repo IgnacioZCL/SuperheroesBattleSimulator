@@ -36,3 +36,18 @@
     transform: rotate(360deg);
   }
 }
+
+.character-image {
+  max-height: 230px;
+  border-radius: 15px;
+}
+
+.a-team {
+  background-color: rgba(0, 0, 180, 0.6);
+  border-radius: 25px;
+}
+
+.b-team {
+  background-color: rgba(180, 0, 0, 0.6);
+  border-radius: 25px;
+}
