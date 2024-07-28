@@ -93,7 +93,7 @@ function App() {
   return (
     <div className="App p-5">
       <div>
-        <h1>Batallas de súperheroes</h1>
+        <h1>Batallas de superhéroes</h1>
         <p>Esta aplicación consume la API de SuperHeroes API para obtener personajes de forma aleatoria con sus estadísticas y permite simular batallas.
         </p>
       </div>
