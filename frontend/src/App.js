@@ -83,7 +83,7 @@ function App() {
             {loadingEmail 
             ? <Spinner animation="border" role="status"><span className="visually-hidden">Loading...</span></Spinner>
             : <button className="btn btn-danger mb-3" onClick={() => sendBattleResumeEmail(setEmailSuccess, setLoadingEmail, getWinner, battleLogs, email)}>Enviar resumen al correo</button>}
-            {emailSuccess ? <Alert variant="success">¡Resumen enviado!</Alert> : <Alert variant="danger">Ocurrió un error</Alert>}
+            {emailSuccess && <Alert variant="success">¡Resumen enviado!</Alert>}
           </Col>
         </Row>
         
