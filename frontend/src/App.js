@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
-import { Row, Col, Spinner, Container } from "react-bootstrap";
+import { Row, Col, Spinner, Container, Alert } from "react-bootstrap";
 import './App.css';
 
 function App() {
@@ -13,11 +13,19 @@ function App() {
   });
   const [battleLogs, setBattleLogs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingEmail, setLoadingEmail] = useState(false);
   const [email, setEmail] = useState('');
   const [emailSuccess, setEmailSuccess] = useState(false)
 
-  const generateTeams = () => {
+  const resetData = () => {
+    setBattleLogs([]);
+    setLoading(false);
+    setEmail('');
     setEmailSuccess(false)
+  }
+  
+  const generateTeams = () => {
+    resetData();
     setLoading(true);
     axios.get(`${API_URL}generate_teams/`).then((response) => {
       setATeam(response.data.a_team)
@@ -47,6 +55,7 @@ function App() {
   }
 
   const sendBattleResumeEmail = () => {
+    setLoadingEmail(true)
     const battleSummary = battleLogs.map(battleLog => `
       ${battleLog.a_character_name} (${battleLog.a_character_hp} hp) atacó a ${battleLog.b_character_name} (${battleLog.b_character_hp} hp) con un ataque tipo ${ battleLog.a_attack_type} y le hizo ${battleLog.a_attack_points} puntos de daño.\n
       ${battleLog.b_character_name} (${battleLog.b_character_hp} hp) atacó a ${battleLog.a_character_name} (${battleLog.a_character_hp} hp) con un ataque tipo ${ battleLog.b_attack_type} y le hizo ${battleLog.b_attack_points} puntos de daño.\n
@@ -60,26 +69,43 @@ function App() {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
       }
-    }).then(response => setEmailSuccess(true)).catch(function(error) {
+    }).then(response => {
+      setEmailSuccess(true)
+      setLoadingEmail(false)
+    }).catch(function(error) {
       console.log(error);
     });
   }
 
+  const validateTeams = () => aTeam.characters.length > 0 && bTeam.characters.length > 0
+
 
   return (
-    <div className="App">
-
+    <div className="App p-5">
+      <div>
+        <h1>Batallas de súperheroes</h1>
+        <p>Esta aplicación consume la API de SuperHeroes API para obtener personajes de forma aleatoria con sus estadísticas y permite simular batallas.
+        </p>
+      </div>
+      <Row className="mb-5">
       {loading 
-      ? <>
+      ? <Col>
           <Spinner animation="border" role="status">
             <span className="visually-hidden">Loading...</span>
           </Spinner>
-        </>
-      : <button className="btn btn-primary" onClick={() => generateTeams()}>Generar equipos</button>
+        </Col>
+      : 
+      <>
+        <Col>
+          <button className="btn btn-primary margin-right" onClick={() => generateTeams()}>Generar equipos</button>
+          {validateTeams() && <button className="btn btn-danger" onClick={() => runBattle()}>¡Pelear!</button>}
+        </Col>
+          
+      </>
       }
-      {aTeam.characters.length > 0 && bTeam.characters.length > 0 && 
+      </Row>
+      {validateTeams() && 
       <Container>
-      <button className="btn btn-danger" onClick={() => runBattle()}>¡Pelear!</button>
         <Row className="a-team mb-5 p-3">
           <h2>Equipo Azul</h2>
           {aTeam.characters.map(character => (
@@ -128,9 +154,14 @@ function App() {
             <span className="bold-text"> {battleLog.b_attack_type}</span> y le hizo <span className="bold-text">{battleLog.b_attack_points} puntos de daño</span></div>  
           </div>)}
         </Row>
-        <input className="form-control w-20" type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <button className="btn btn-danger" onClick={() => sendBattleResumeEmail()}>Enviar resumen al correo</button>
-        {emailSuccess && <div>¡Resumen enviado!</div>}
+        <Row className="justify-content-center">
+          <Col xs={3}>
+            <input className="form-control w-20 mb-3" type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
+            {loadingEmail ? <Spinner animation="border" role="status"><span className="visually-hidden">Loading...</span></Spinner>: <button className="btn btn-danger mb-3" onClick={() => sendBattleResumeEmail()}>Enviar resumen al correo</button>}
+            {emailSuccess && <Alert variant="success">¡Resumen enviado!</Alert>}
+          </Col>
+        </Row>
+        
       </>}
     </div>
   );

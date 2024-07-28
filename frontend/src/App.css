@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  background-color: rgba(240, 240, 240, 0.8);
 }
 
 .App-logo {
@@ -62,4 +63,8 @@
 
 .bold-text {
   font-weight: bold;
+}
+
+.margin-right {
+  margin-right: 10px;
 }
