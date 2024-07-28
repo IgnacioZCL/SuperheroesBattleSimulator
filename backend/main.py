@@ -55,7 +55,7 @@ async def send_battle_email(request: Request):
         data={"from": "Excited User <ignacio.f.zuniga@gmail.com>",
                       "to": [body['receiver']],
                       "subject": "Resumen de la pelea de personajes",
-              "text": body['battle_summary']})
+              "html": body['battle_summary']})
     return {'message': 'success'}
 
 

@@ -15,13 +15,15 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [loadingEmail, setLoadingEmail] = useState(false);
   const [email, setEmail] = useState('');
-  const [emailSuccess, setEmailSuccess] = useState(false)
+  const [emailSuccess, setEmailSuccess] = useState(false);
+  const [winner, setWinner] = useState('');
 
   const resetData = () => {
     setBattleLogs([]);
     setLoading(false);
     setEmail('');
-    setEmailSuccess(false)
+    setEmailSuccess(false);
+    setWinner('');
   }
   
   const generateTeams = () => {
@@ -36,6 +38,8 @@ function App() {
     });
   }
 
+  const getWinner = () =>  winner === 'a_team' ? 'Equipo Azul' : 'Equipo Rojo' 
+
   const runBattle = () => {
     if (aTeam.characters.length > 0 && bTeam.characters.length > 0) {
       const data = {
@@ -48,18 +52,24 @@ function App() {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         }
-      }).then(response => setBattleLogs(response.data.battle_logs)).catch(function(error) {
+      }).then(response => {
+        setBattleLogs(response.data.battle_logs)
+        setWinner(response.data.winner)
+      }).catch(function(error) {
         console.log(error);
       });
     }
   }
 
   const sendBattleResumeEmail = () => {
+    setEmailSuccess(false);
     setLoadingEmail(true)
     const battleSummary = battleLogs.map(battleLog => `
-      ${battleLog.a_character_name} (${battleLog.a_character_hp} hp) atacó a ${battleLog.b_character_name} (${battleLog.b_character_hp} hp) con un ataque tipo ${ battleLog.a_attack_type} y le hizo ${battleLog.a_attack_points} puntos de daño.\n
-      ${battleLog.b_character_name} (${battleLog.b_character_hp} hp) atacó a ${battleLog.a_character_name} (${battleLog.a_character_hp} hp) con un ataque tipo ${ battleLog.b_attack_type} y le hizo ${battleLog.b_attack_points} puntos de daño.\n
-      ----------------------------------------------------------------------------------`)
+      <p>${battleLog.a_character_name} (${battleLog.a_character_hp} hp) atacó a ${battleLog.b_character_name} (${battleLog.b_character_hp} hp) con un ataque tipo ${ battleLog.a_attack_type} y le hizo ${battleLog.a_attack_points} puntos de daño.\n</p>
+      <p>${battleLog.b_character_name} (${battleLog.b_character_hp} hp) atacó a ${battleLog.a_character_name} (${battleLog.a_character_hp} hp) con un ataque tipo ${ battleLog.b_attack_type} y le hizo ${battleLog.b_attack_points} puntos de daño.\n</p>
+      <p>----------------------------------------------------------------------------------</p>
+      `)
+      battleSummary.push(`<p>¡Gana el <strong>${getWinner()}</strong>!</p>`);
     const data = {
       receiver: email,
       battle_summary: battleSummary.join('')
@@ -153,6 +163,9 @@ function App() {
             <span className="a-character bold-text"> {battleLog.a_character_name} ({battleLog.a_character_hp} hp)</span> con un ataque tipo 
             <span className="bold-text"> {battleLog.b_attack_type}</span> y le hizo <span className="bold-text">{battleLog.b_attack_points} puntos de daño</span></div>  
           </div>)}
+
+          <div className="mb-5">¡Gana el <strong>{getWinner()}</strong>!</div>
+
         </Row>
         <Row className="justify-content-center">
           <Col xs={3}>
