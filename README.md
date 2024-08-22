@@ -1,4 +1,4 @@
-# TokuSuperheroes
+# SuperheroesBattleSimulator
 
 ## Proyecto de simulación de batallas de superheroes
 
