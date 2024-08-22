@@ -1,6 +1,6 @@
 # TokuSuperheroes
 
-## Proyecto para la prueba de Superheroes API para la empresa Toku
+## Proyecto de simulación de batallas de superheroes
 
 El siguiente proyecto fue programado con un backend escrito en Python con el framework FastApi y frontend en JavaScript con la librería React,
 con el fin de facilitar su despliegue, el proyecto completo está contenerizado en Docker con docker compose V2 para que se pueda levantar con el siguiente comando.
